@@ -113,6 +113,8 @@
 
     let gameStarted = false;
     let waitingForPhoto = false;
+    let currentStage = "start";
+    let platePhotoStep = 0;
 
     function addMessage(content, sender = "bot") {
       const msg = document.createElement("div");
@@ -130,26 +132,42 @@
 
     function handlePhoto(event) {
       const file = event.target.files[0];
-      if (file && waitingForPhoto) {
-        const url = URL.createObjectURL(file);
+      if (!file) return;
 
-        // Afficher la photo dans la conversation utilisateur avec option de téléchargement
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = file.name || "photo.jpg";
-        link.target = "_blank";
+      const url = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = file.name || "photo.jpg";
+      link.target = "_blank";
 
-        const img = document.createElement("img");
-        img.src = url;
-        img.alt = "photo envoyée";
-        link.appendChild(img);
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "photo envoyée";
+      link.appendChild(img);
 
-        addMessage(link, "user");
+      addMessage(link, "user");
 
+      if (waitingForPhoto && currentStage === "figures") {
         setTimeout(() => {
           addMessage("super les filles ! Regardez bien dans l'armoire du vestiaire pour continuer", "bot");
           waitingForPhoto = false;
         }, 800);
+      }
+
+      if (currentStage === "plaques") {
+        const compliments = ["mais wow vous êtes trop fortes !", "bien joué les filles !", "excellent travail !"];
+        const nextSteps = ["Envoyez maintenant une photo avec la plaque verte.", "Et pour finir, la plaque bleue s'il vous plaît !", "Vous avez terminé cette étape ! 🎉"];
+
+        setTimeout(() => {
+          addMessage(compliments[Math.floor(Math.random() * compliments.length)], "bot");
+          platePhotoStep++;
+
+          if (platePhotoStep < 3) {
+            addMessage(nextSteps[platePhotoStep - 1], "bot");
+          } else {
+            currentStage = "done";
+          }
+        }, 1000);
       }
     }
 
@@ -167,9 +185,17 @@
         return;
       }
 
-      if (gameStarted && lowerText.includes("filtre rouge") && !waitingForPhoto) {
+      if (gameStarted && lowerText.includes("filtre rouge") && currentStage === "start") {
         waitingForPhoto = true;
+        currentStage = "figures";
         setTimeout(() => addMessage("ok envoyez-moi les figures", "bot"), 500);
+        return;
+      }
+
+      if (lowerText.includes("plaques de couleur") && currentStage !== "plaques") {
+        currentStage = "plaques";
+        platePhotoStep = 0;
+        setTimeout(() => addMessage("On enchaîne avec les plaques ! Envoyez d'abord une photo avec la plaque rouge.", "bot"), 500);
         return;
       }
 
