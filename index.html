@@ -113,7 +113,7 @@
     const sendBtn = document.getElementById("sendBtn");
 
     let gameStarted = false;
-    let waitingForPhoto = false;
+    let waitingForVideo = false;
     let currentStage = "start";
     let platePhotoStep = 0;
     let awaitingVideo = false;
@@ -156,10 +156,10 @@
       link.appendChild(media);
       addMessage(link, "user");
 
-      if (waitingForPhoto && currentStage === "figures") {
+      if (waitingForVideo && currentStage === "figures") {
         setTimeout(() => {
           addMessage("super les filles ! Regardez bien dans l'armoire du vestiaire pour continuer", "bot");
-          waitingForPhoto = false;
+          waitingForVideo = false;
         }, 800);
       }
 
@@ -203,13 +203,13 @@
       }
 
       if (gameStarted && lowerText.includes("filtre rouge") && currentStage === "start") {
-        waitingForPhoto = true;
+        waitingForVideo = true;
         currentStage = "figures";
-        setTimeout(() => addMessage("ok envoyez-moi les figures", "bot"), 500);
+        setTimeout(() => addMessage("ok envoyez-moi les figures (en vidéo)", "bot"), 500);
         return;
       }
 
-      if (lowerText.includes("plaques de couleur")) {
+      if (lowerText.includes("plan du studio")) {
         currentStage = "plaques";
         platePhotoStep = 0;
         setTimeout(() => addMessage("On enchaîne avec les plaques ! Envoyez d'abord une photo avec la plaque rouge.", "bot"), 500);
