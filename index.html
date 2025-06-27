@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio La Milie - Escape Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #e5ddd5;
+    }
+    .chat-container {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .header {
+      background: #075e54;
+      color: white;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background: #e5ddd5;
+      display: flex;
+      flex-direction: column;
+    }
+    .message {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      display: inline-block;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .bot {
+      background: #dcf8c6;
+      align-self: flex-start;
+    }
+    .user {
+      background: #fff;
+      align-self: flex-end;
+    }
+    .input-container {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      background: #075e54;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .audio {
+      width: 100%;
+      margin-top: 5px;
+    }
+    #photoInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="header">
+      <img src="images.png" alt="Studio La Milie" />
+      <strong>Studio La Milie</strong>
+    </div>
+    <div class="messages" id="messages">
+      <div class="message bot">bon courage les filles</div>
+    </div>
+    <div class="input-container">
+      <input type="text" id="userInput" placeholder="Tapez un message..." />
+      <button id="sendBtn">Envoyer</button>
+      <button onclick="document.getElementById('photoInput').click()">📷</button>
+      <input type="file" accept="image/*" capture="environment" id="photoInput" onchange="handlePhoto(event)" />
+    </div>
+  </div>
+
+  <script>
+    const messages = document.getElementById("messages");
+    const input = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    let gameStarted = false;
+    let waitingForPhoto = false;
+
+    function addMessage(content, sender = "bot") {
+      const msg = document.createElement("div");
+      msg.className = `message ${sender}`;
+
+      if (typeof content === "string") {
+        msg.textContent = content;
+      } else if (content instanceof HTMLElement) {
+        msg.appendChild(content);
+      }
+
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function handlePhoto(event) {
+      const file = event.target.files[0];
+      if (file && waitingForPhoto) {
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.style.maxWidth = "100%";
+        addMessage(img, "user");
+
+        setTimeout(() => {
+          addMessage("super les filles !! Ok je suis sûre qu'il s'agisse vraiment de vous, regardez dans l'armoire du vestiaire pour la suite.", "bot");
+          waitingForPhoto = false;
+        }, 800);
+      }
+    }
+
+    function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, "user");
+      const lowerText = text.toLowerCase();
+      input.value = "";
+
+      if (!gameStarted && lowerText.includes("compter sur nous")) {
+        gameStarted = true;
+        setTimeout(() => addMessage("Très bien. Première étape : cherchez un indice visuel. Dites-moi ce que vous voyez avec le filtre rouge.", "bot"), 500);
+        return;
+      }
+
+      if (gameStarted && lowerText.includes("filtre rouge") && !waitingForPhoto) {
+        waitingForPhoto = true;
+        setTimeout(() => addMessage("ok envoyez-moi les figures", "bot"), 500);
+        return;
+      }
+
+      setTimeout(() => addMessage("(Indice) Tu peux reformuler ou regarder autour de toi...", "bot"), 500);
+    }
+
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    sendBtn.addEventListener("click", function () {
+      sendMessage();
+    });
+  </script>
+</body>
+</html>
