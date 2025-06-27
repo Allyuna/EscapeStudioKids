@@ -103,7 +103,7 @@
       <input type="text" id="userInput" placeholder="Tapez un message..." />
       <button id="sendBtn">Envoyer</button>
       <button onclick="document.getElementById('photoInput').click()">📷</button>
-      <input type="file" accept="image/*,video/*" capture="environment" id="photoInput" onchange="handlePhoto(event)" />
+      <input type="file" accept="image/*,video/*" id="photoInput" onchange="handlePhoto(event)" />
     </div>
   </div>
 
@@ -198,7 +198,7 @@
 
       if (!gameStarted && lowerText.includes("compter sur nous")) {
         gameStarted = true;
-        setTimeout(() => addMessage("Très bien. Première étape : cherchez un indice visuel. Dites-moi ce que vous voyez avec le filtre rouge.", "bot"), 500);
+        setTimeout(() => addMessage("Très bien. Première étape : récupérez ce qu'il y a en haut des barres et dites moi avec quoi vous pouvez les analyser.", "bot"), 500);
         return;
       }
 
