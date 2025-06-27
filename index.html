@@ -83,7 +83,8 @@
     #photoInput {
       display: none;
     }
-    .message img {
+    .message img,
+    .message video {
       max-width: 100%;
       border-radius: 10px;
     }
@@ -102,7 +103,7 @@
       <input type="text" id="userInput" placeholder="Tapez un message..." />
       <button id="sendBtn">Envoyer</button>
       <button onclick="document.getElementById('photoInput').click()">📷</button>
-      <input type="file" accept="image/*" capture="environment" id="photoInput" onchange="handlePhoto(event)" />
+      <input type="file" accept="image/*,video/*" capture="environment" id="photoInput" onchange="handlePhoto(event)" />
     </div>
   </div>
 
@@ -115,6 +116,7 @@
     let waitingForPhoto = false;
     let currentStage = "start";
     let platePhotoStep = 0;
+    let awaitingVideo = false;
 
     function addMessage(content, sender = "bot") {
       const msg = document.createElement("div");
@@ -137,14 +139,21 @@
       const url = URL.createObjectURL(file);
       const link = document.createElement("a");
       link.href = url;
-      link.download = file.name || "photo.jpg";
+      link.download = file.name || "media";
       link.target = "_blank";
 
-      const img = document.createElement("img");
-      img.src = url;
-      img.alt = "photo envoyée";
-      link.appendChild(img);
+      let media;
+      if (file.type.startsWith("video")) {
+        media = document.createElement("video");
+        media.src = url;
+        media.controls = true;
+      } else {
+        media = document.createElement("img");
+        media.src = url;
+        media.alt = "photo envoyée";
+      }
 
+      link.appendChild(media);
       addMessage(link, "user");
 
       if (waitingForPhoto && currentStage === "figures") {
@@ -165,8 +174,16 @@
           if (platePhotoStep < 3) {
             addMessage(nextSteps[platePhotoStep - 1], "bot");
           } else {
-            currentStage = "done";
+            currentStage = "canape";
+            addMessage("regardez bien sous le canapé, il y a un objet qui pourra vous aider à passer à la suite", "bot");
           }
+        }, 1000);
+      }
+
+      if (awaitingVideo) {
+        awaitingVideo = false;
+        setTimeout(() => {
+          addMessage("c'est bien ça les filles vous êtes trop fortes ! Ok vous avez réussi ! La dernière étape est dans le bac noir des élastiques !", "bot");
         }, 1000);
       }
     }
@@ -196,6 +213,18 @@
         currentStage = "plaques";
         platePhotoStep = 0;
         setTimeout(() => addMessage("On enchaîne avec les plaques ! Envoyez d'abord une photo avec la plaque rouge.", "bot"), 500);
+        return;
+      }
+
+      if (lowerText.includes("une boite à billes") || lowerText.includes("boîte à billes")) {
+        currentStage = "bille";
+        awaitingVideo = true;
+        setTimeout(() => addMessage("faites glisser la bille dans l'arrivée pour dévoiler la suite", "bot"), 500);
+        return;
+      }
+
+      if (lowerText.includes("on a réussi à ouvrir le coffre")) {
+        setTimeout(() => addMessage("Merci beaucoup les filles ! Vous avez réussie l'enquête !", "bot"), 500);
         return;
       }
 
