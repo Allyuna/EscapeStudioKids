@@ -83,6 +83,10 @@
     #photoInput {
       display: none;
     }
+    .message img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
@@ -127,13 +131,23 @@
     function handlePhoto(event) {
       const file = event.target.files[0];
       if (file && waitingForPhoto) {
+        const url = URL.createObjectURL(file);
+
+        // Afficher la photo dans la conversation utilisateur avec option de téléchargement
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = file.name || "photo.jpg";
+        link.target = "_blank";
+
         const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.style.maxWidth = "100%";
-        addMessage(img, "user");
+        img.src = url;
+        img.alt = "photo envoyée";
+        link.appendChild(img);
+
+        addMessage(link, "user");
 
         setTimeout(() => {
-          addMessage("super les filles !! Ok je suis sûre qu'il s'agisse vraiment de vous, regardez dans l'armoire du vestiaire pour la suite.", "bot");
+          addMessage("super les filles ! Regardez bien dans l'armoire du vestiaire pour continuer", "bot");
           waitingForPhoto = false;
         }, 800);
       }
