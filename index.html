@@ -192,7 +192,7 @@
         return;
       }
 
-      if (lowerText.includes("plaques de couleur") && currentStage !== "plaques") {
+      if (lowerText.includes("plaques de couleur")) {
         currentStage = "plaques";
         platePhotoStep = 0;
         setTimeout(() => addMessage("On enchaîne avec les plaques ! Envoyez d'abord une photo avec la plaque rouge.", "bot"), 500);
